@@ -66,7 +66,7 @@ def download_from_arquive(arquive: str, lang: str) -> map:
 
 if __name__ == "__main__":
     try:
-        path = download_from_arquive(sys.argv[1], sys.argv[2])
+        download_from_arquive(sys.argv[1], sys.argv[2])
     except Exception as e:
         print(e)
         print(__doc__)
