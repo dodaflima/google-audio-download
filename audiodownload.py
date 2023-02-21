@@ -17,7 +17,7 @@ import sys
 import os
 from requests import get
 
-def __save_audio(audio: bytes, name: str) -> None:
+def __save_audio(audio: bytes, name: str) -> str:
     if not os.path.exists("audio/"):
         try:
             os.mkdir("audio")
@@ -27,6 +27,8 @@ def __save_audio(audio: bytes, name: str) -> None:
     save = open(f"audio/{name}.mp3", "wb")
     save.write(audio)
     save.close()
+
+    return os.path.realpath(save.name)
 
 def __download(word: str, lang: str) -> bytes:
     '''
@@ -42,22 +44,29 @@ def __download(word: str, lang: str) -> bytes:
     else:
         return audio.content
 
-def download_from_list(lista: list, lang: str):
+def download_from_list(lista: list, lang: str) -> list:
+
+    files_path = {}
+
     for word in lista:
         audio = __download(word, lang)
-        __save_audio(audio, word)
+        path = __save_audio(audio, word)
+        files_path.update({word: path})
+    
+    return files_path
 
-def download_from_arquive(arquive: str, lang: str):
+def download_from_arquive(arquive: str, lang: str) -> map:
     if not os.path.exists(arquive):
         raise Exception(f"Não foi possível abrir: {arquive}")
 
     with open(arquive, "r") as file:
         word_list = list((word.rstrip("\n") for word in file.readlines()))
-        download_from_list(word_list, lang)
+        files_path = download_from_list(word_list, lang)
+        return files_path
 
 if __name__ == "__main__":
     try:
-        download_from_arquive(sys.argv[1], sys.argv[2])
+        path = download_from_arquive(sys.argv[1], sys.argv[2])
     except Exception as e:
         print(e)
         print(__doc__)
